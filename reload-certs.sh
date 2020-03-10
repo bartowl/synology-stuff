@@ -1,12 +1,9 @@
 #!/bin/sh
-# script to reload synology certificates from a known location
-# feel free to modify "import form WAF" section to point to your location
-# script can be run from task scheduler once a day
-# normally does not generate any output and returns 0
-# if certificates get updated, it prints brief info and returns exit code 1, so a mail notification can be sent
+# script to reload synology certificates for all assigned services
+# it is meant to be run after renewing certificats to reload all affected services
+# for example form acme.sh as --reloadcmd
 
 INFO=/usr/syno/etc/certificate/_archive/INFO
-exitcode=0
 for domain_id in $(jq -r 'keys[]' $INFO); do
   domain=$(jq -r ".$domain_id.desc" $INFO);
   num_services=$(jq -r ".$domain_id.services|length" $INFO)
@@ -38,14 +35,12 @@ for domain_id in $(jq -r 'keys[]' $INFO); do
     [ -x "$reload" ] || reload=/bin/true
     # check service CRT gainst src_path
     if ! diff -q $crtpath/cert.pem $src_path/cert.pem > /dev/null; then
-      echo "* updating certificate for $name [$subscriber:$service ($isPkg)]"
+      echo "* updating certificate for $name"
       for f in cert.pem chain.pem fullchain.pem privkey.pem; do
         cat $src_path/$f > $crtpath/$f
       done
       echo "  reloading..."
       $reload $service > /dev/null
-      exitcode=1
     fi
   done
 done
-exit $exitcode
