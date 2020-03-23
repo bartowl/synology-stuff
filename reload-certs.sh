@@ -9,16 +9,6 @@ for domain_id in $(jq -r 'keys[]' $INFO); do
   num_services=$(jq -r ".$domain_id.services|length" $INFO)
   src_path=/usr/syno/etc/certificate/_archive/$domain_id
 
-# import from WAF-docker-container start
-  import_path=/volume1/docker/WAF/certs/live/$domain
-  if ! diff -q $src_path/cert.pem $import_path/cert.pem > /dev/null; then
-    echo "* fetched updated cert from WAF container for domain $domain"
-    for f in cert.pem chain.pem fullchain.pem privkey.pem; do
-      cat $import_path/$f > $src_path/$f
-    done
-  fi
-# import from WAF-docker-container start
-
 #  echo "domain=$domain ($num_services):"
   for srv_id in $(seq 0 $((num_services-1))); do
     name=$(jq -r ".$domain_id.services[$srv_id].display_name" $INFO)
