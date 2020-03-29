@@ -5,16 +5,16 @@
 
 INFO=/usr/syno/etc/certificate/_archive/INFO
 for domain_id in $(jq -r 'keys[]' $INFO); do
-  domain=$(jq -r ".$domain_id.desc" $INFO);
-  num_services=$(jq -r ".$domain_id.services|length" $INFO)
+  domain=$(jq -r ".\"$domain_id\".desc" $INFO);
+  num_services=$(jq -r ".\"$domain_id\".services|length" $INFO)
   src_path=/usr/syno/etc/certificate/_archive/$domain_id
 
 #  echo "domain=$domain ($num_services):"
   for srv_id in $(seq 0 $((num_services-1))); do
-    name=$(jq -r ".$domain_id.services[$srv_id].display_name" $INFO)
-    service=$(jq -r ".$domain_id.services[$srv_id].service" $INFO)
-    subscriber=$(jq -r ".$domain_id.services[$srv_id].subscriber" $INFO)
-    isPkg=$(jq -r ".$domain_id.services[$srv_id].isPkg" $INFO)
+    name=$(jq -r ".\"$domain_id\".services[$srv_id].display_name" $INFO)
+    service=$(jq -r ".\"$domain_id\".services[$srv_id].service" $INFO)
+    subscriber=$(jq -r ".\"$domain_id\".services[$srv_id].subscriber" $INFO)
+    isPkg=$(jq -r ".\"$domain_id\".services[$srv_id].isPkg" $INFO)
     if [ "$isPkg" == "true" ]; then
       crtpath=/usr/local/etc/certificate/$subscriber/$service
       reload=/usr/local/libexec/certificate.d/$subscriber
