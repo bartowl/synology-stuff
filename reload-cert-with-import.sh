@@ -42,6 +42,12 @@ for domain_id in $(jq -r 'keys[]' $INFO); do
       for f in cert.pem chain.pem fullchain.pem privkey.pem; do
         cat $src_path/$f > $crtpath/$f
       done
+      ## Work around bug in DSM 6.2.2-24922 Update 4 for system
+      if [ "$subscriber" = "system" -a "$service" = "default" ]; then
+        if fgrep '[ "$1" = "default" ] && exit' $reload >/dev/null; then
+          service="default-bug-workaround"
+        fi
+      fi
       echo "  reloading..."
       $reload $service > /dev/null
       exitcode=1
