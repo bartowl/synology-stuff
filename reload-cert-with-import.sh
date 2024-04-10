@@ -54,4 +54,9 @@ for domain_id in $(jq -r 'keys[]' $INFO); do
     fi
   done
 done
+# fix cert reload for DSM7
+if [ $exitcode -eq 1 ]; then
+  /usr/syno/bin/synow3tool --gen-all
+  synow3tool --restart-dsm-service
+fi
 exit $exitcode
